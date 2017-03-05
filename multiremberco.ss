@@ -85,21 +85,23 @@
 ; is. 
 ;
 ; If you look closely, you'll notice that newlat and seen are not so
-; mysterious actually. These arguments are where the next recursion will
-; put it's result. Because we're a recursive function, we need to know
-; what the next iterations result is and combine that with our own
-; result. So we're asking a future computation to define newlat and
+; mysterious actually. These arguments are where the next recursion 
+; will ; put it's result. Because we're a recursive function, we need 
+; to know what the next iterations result is and combine that with our 
+; own result. So we're asking a future computation to define newlat and
 ; seen for us.
 ;
-; Now each iteration may ask the next iteration for newlat and seen,
+; Now, each iteration may ask the next iteration for newlat and seen,
 ; because it wants to cons something onto one of them. The only case
-; where it doesn't, finally, is the base case. When we no longer have
-; any atoms to process so we call the closure passed to us and define
-; newlat and seen as two null lists. The stack of closures asking for
-; newlat and lat will unwind, and the closed over variable will be
-; consed onto one of the two list in each call. Finally we get to the
-; innermost body, where our (list) is still waiting around, we pass
-; it the two now complete lists, and return the result.
+; where it doesn't, finally, is the base case. 
+;
+; When we no longer have any atoms to process we call the closure 
+; passed to us most recently and define newlat and seen as two null 
+; lists. The stack of closures asking for newlat and lat will unwind, 
+; and the closed over variable will be consed onto one of the two list 
+; in each call. Finally we get to the innermost body, where our (list) 
+; is still waiting around, we pass it the two now complete lists, 
+; and return the result.
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
