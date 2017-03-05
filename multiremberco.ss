@@ -113,7 +113,7 @@
 ; lat = (berries tuna fish)
 ; col = list
 
-(multirember&co tuna (berries tuna fish) list)
+(multirember&co 'tuna (berries tuna fish) list)
 
 ; The first time around, (car lat) is not eq to tuna, so we move
 ; on to the else case. This looks pretty similar to what we did
@@ -131,7 +131,7 @@
                                                               newlat) 
                                                         seen)))
 
-; And expanded:
+; Expanding the car's and cdr's.
 
 (multirember&co 'tuna (tuna fish) (lambda (newlat seen)
                                     (list (cons 'berries newlat) seen)))
@@ -139,65 +139,57 @@
 ; This time (car (tuna fish)) will eq 'tuna, and so we go into the eq
 ; cond. But note that this time we need to use our passed down closure 
 ; in the body of the third function argument and we have to nest our
-; lambdas. Now I skip the intermediate step of writing out the cdr's 
-; and car's.
-;
-; What is happening here is that we're building onto the closure, so
-; we get a stack of functions where the arguments are consed before
-; feeding into the next function, waiting to be unraveled. Also,
-; remember that the outer 'tuna comes from the outer lexical
-; environment, and the innermost 'berries comes from the inital call;
-; these are the closed over values we carry with us every time we
-; define one of these "third-argument functions".
+; closures. Remember, the inner Closure 1 is asking the outer Closure
+; 2 to give it newlat and seen, but Closure 2 doesn't know what newlat
+; or seen is, it will have to ask the next iteration. However, Closure
+; 2 does know that whatever seen will be, 'tuna should be consed with it.
 
-(multirember&co 'tuna (fish) (lambda (newlat seen)
-                               (lambda (newlat seen)
+(multirember&co 'tuna (fish) (lambda (newlat seen) ; Closure 2
+                               (lambda (newlat seen) ; Closure 1
                                  (list (cons 'berries newlat) seen))
                                (newlat (cons 'tuna seen))))
 
 ; In the next recursion, 'fish wont be eq to 'tuna, so we go into the
 ; else again and recur. In the process we will of course define a new
 ; lambda that closes over the current value, now we have three nested
-; functions waiting to be unraveled.
+; closures waiting to be unraveled.
 
-(multirember&co 'tuna '() (lambda (newlat seen)
-                            (lambda (newlat seen)
-                              (lambda (newlat seen)
+(multirember&co 'tuna '() (lambda (newlat seen) ; Closure 3
+                            (lambda (newlat seen) ; Closure 2
+                              (lambda (newlat seen) ; Closure 1
                                 (list (cons 'berries newlat) seen))
                               (newlat (cons 'tuna seen)))
                             ((cons ('fish newlat)) seen)))
 
-; In the next and final recursion, we will be stopped in the null? check.
-; This is our base case; the list is now empty. Now we call the passed in
-; closure with two empty lists. That call will look like this.
+; In the next and final recursion, we will be stopped in the (null? ...) 
+; check. This is our base case; the list is now empty. Now we call the 
+; passed closure with two empty lists. That call will look like this.
 
-(lambda (newlat seen)
-  (lambda (newlat seen)
-    (lambda (newlat seen)
+(lambda (newlat seen) ; Closure 3
+  (lambda (newlat seen) ; Closure 2
+    (lambda (newlat seen) ; Closure 1
       (list (cons 'berries newlat) seen))
     (newlat (cons 'tuna seen)))
   ((cons ('fish newlat)) seen))
 ('() '())
 
 ; Now this is the moment we have been waiting for. This is where we
-; unwind this stack of lambdas, and somehow we should have separated
-; the list into two. We first substitute the null lists and get this.
+; unwind this stack of closures, and each closed over variable will
+; finally actually be consed. We first substitute the null lists and 
+; get this, i.e. we answer Closure 3's question with '() and '().
 
-(lambda (newlat seen)
-  (lambda (newlat seen)
-    (list (cons berries newlat) seen))
+(lambda (newlat seen) ; Closure 2
+  (lambda (newlat seen) ; Closure 1
+    (list (cons 'berries newlat) seen))
   (newlat (cons 'tuna seen)))
 ((cons ('fish '())) '())
 
-; Note that we completely remove the first outer lambda, and substitute
-; the empty lists into the first inner lambda, which is the lambda that
-; makes use of the outer lambdas arguments. We substitute further.
+; Substitute further.
 
-(lambda (newlat seen)
-  (list (cons berries newlat) seen))
+(lambda (newlat seen) ; Closure 1
+  (list (cons 'berries newlat) seen))
 ((fish) (tuna))
 
 ; And further.
 
 (list (berries fish) (tuna))
-
