@@ -86,7 +86,7 @@
 ;
 ; If you look closely, you'll notice that newlat and seen are not so
 ; mysterious actually. These arguments are where the next recursion 
-; will ; put it's result. Because we're a recursive function, we need 
+; will put it's result. Because we're a recursive function, we need 
 ; to know what the next iterations result is and combine that with our 
 ; own result. So we're asking a future computation to define newlat and
 ; seen for us.
