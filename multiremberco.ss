@@ -100,8 +100,8 @@
 ; lists. The stack of closures asking for newlat and lat will unwind, 
 ; and the closed over variable will be consed onto one of the two list 
 ; in each call. Finally we get to the innermost body, where our (list) 
-; is still waiting around, we pass it the two now complete lists, 
-; and return the result.
+; is still waiting around, we pass it the two now complete lists and 
+; return the result.
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
